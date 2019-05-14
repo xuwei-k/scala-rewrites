@@ -24,6 +24,8 @@ object Scala_2_13 {
   val deprecatedConsoleReadf2      = SymbolMatcher.exact("scala/DeprecatedConsole#readf2().")
   val deprecatedConsoleReadf3      = SymbolMatcher.exact("scala/DeprecatedConsole#readf3().")
 
+  val scalaSeq = SymbolMatcher.exact("scala/package.Seq#")
+
   val arrowAssoc = SymbolMatcher.exact("scala/Predef.ArrowAssoc#`→`().")
 }
 
@@ -71,6 +73,14 @@ final class Scala_2_13 extends SemanticRule("Scala_2_13") {
       }
       {
         case Term.Interpolate(_, _, args) => args.collect(fixI(true)).asPatch
+
+        case Term.Param(_, _, Some(scalaSeq(x @ Type.Apply(t, _))), _) =>
+          recordHandled(x)
+          replaceTree(t, "sc.Seq") + addGlobalImport(importer"scala.{collection => sc}")
+
+        case scalaSeq(x @ Type.Apply(t, _)) =>
+          recordHandled(x)
+          replaceTree(t, "sci.Seq") + addGlobalImport(importer"scala.collection.{immutable => sci}")
 
         case EOL(i: Importee) => Patch.removeImportee(i)
         case EOL(t: Term)     => replaceTree(t, "System.lineSeparator")

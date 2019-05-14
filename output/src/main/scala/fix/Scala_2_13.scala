@@ -1,6 +1,8 @@
 package fix
 
 import scala.compat.Platform
+import scala.{collection => sc}
+import scala.collection.{immutable => sci}
 import scala.io.StdIn
 
 object Scala_2_13 {
@@ -15,6 +17,9 @@ object Scala_2_13 {
   def currentTimeMillis2 = System.currentTimeMillis
   def currentTimeMillis3 = System.currentTimeMillis
   def currentTimeMillis4 = s"now: ${System.currentTimeMillis}"
+
+  def length(xs: sc.Seq[Int]): Int = xs.length
+  def singleton[A](x: A): sci.Seq[A] = List(x)
 
   def arrayCopy1() = System.arraycopy(null, 0, null, 0, 0)
   def arrayCopy2() = System.arraycopy(null, 0, null, 0, 0)
