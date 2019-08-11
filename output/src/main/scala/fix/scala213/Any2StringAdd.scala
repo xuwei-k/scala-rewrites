@@ -28,24 +28,32 @@ abstract class Any2StringAdd {
   def double = 1.0
   //
   def unit1 = unit.toString + s
-  def bool1 = bool.toString + s
-  def byte1 = "" + byte + s
+  def bool1 = s"${bool}${s}"
+  def bool2 = s"${bool}x"
+  def byte1 = s"${byte}${s}"
   def byte2 = byte + byte
-  def short1 = "" + short + s
+  def byte3 = s"${byte}x"
+  def short1 = s"${short}${s}"
   def short2 = short + short
-  def char1 = "" + char + s
+  def short3 = s"${short}x"
+  def char1 = s"${char}${s}"
   def char2 = char + char
-  def int1 = "" + int + s
+  def char3 = s"${char}x"
+  def int1 = s"${int}${s}"
   def int2 = int + int
-  def long1 = "" + long + s
+  def int3 = s"${int}x"
+  def long1 = s"${long}${s}"
   def long2 = long + long
-  def float1 = "" + float + s
+  def long3 = s"${long}x"
+  def float1 = s"${float}${s}"
   def float2 = float + float
-  def double1 = "" + double + s
+  def float3 = s"${float}x"
+  def double1 = s"${double}${s}"
   def double2 = double + double
+  def double3 = s"${double}x"
 
   // With infix operators, make sure to use parens
   def parens1 = (Nil ++ Nil).toString + s
-  def parens2 = "" + (int + int) + s
+  def parens2 = s"${int + int}${s}"
   def parens3 = {Nil ++ Nil}.toString + s
 }

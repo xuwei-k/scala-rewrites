@@ -32,20 +32,28 @@ abstract class Any2StringAdd {
   //
   def unit1 = unit + s
   def bool1 = bool + s
+  def bool2 = bool + "x"
   def byte1 = byte + s
   def byte2 = byte + byte
+  def byte3 = byte + "x"
   def short1 = short + s
   def short2 = short + short
+  def short3 = short + "x"
   def char1 = char + s
   def char2 = char + char
+  def char3 = char + "x"
   def int1 = int + s
   def int2 = int + int
+  def int3 = int + "x"
   def long1 = long + s
   def long2 = long + long
+  def long3 = long + "x"
   def float1 = float + s
   def float2 = float + float
+  def float3 = float + "x"
   def double1 = double + s
   def double2 = double + double
+  def double3 = double + "x"
 
   // With infix operators, make sure to use parens
   def parens1 = Nil ++ Nil + s
