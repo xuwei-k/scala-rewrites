@@ -1,6 +1,7 @@
 import _root_.scalafix.sbt.BuildInfo.{ scala212, scalafixVersion }
 
 inThisBuild(List(
+  libraryDependencies += "org.scalameta" %% "semanticdb-scalac-core" % "4.3.17" cross CrossVersion.full,
   organization := "org.scala-lang",
   licenses := List("Apache-2.0" -> url("https://www.apache.org/licenses/LICENSE-2.0")),
   developers := List(Developer("", "", "", url("https://github.com/scala/scala-rewrites/graphs/contributors"))),
