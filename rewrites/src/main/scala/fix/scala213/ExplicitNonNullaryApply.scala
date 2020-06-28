@@ -1,36 +1,32 @@
 package fix.scala213
 
-import scala.PartialFunction.{ cond, condOpt }
+import scala.PartialFunction.{cond, condOpt}
 import scala.collection.mutable
-import scala.util.control.Exception.nonFatalCatch
 
 import metaconfig.Configured
 
 import scala.meta._
-import scala.meta.internal.pc.ScalafixGlobal
 
 import scalafix.v1._
 import scalafix.internal.rule.CompilerException
-import scalafix.internal.v1.LazyValue
 
-final class ExplicitNonNullaryApply(global: LazyValue[ScalafixGlobal])
-    extends SemanticRule("fix.scala213.ExplicitNonNullaryApply")
-{
-  def this() = this(LazyValue.later(() => ScalafixGlobal.newCompiler(Nil, Nil, Map.empty)))
+final class ExplicitNonNullaryApply
+    extends SemanticRule("fix.scala213.ExplicitNonNullaryApply") {
 
   override def fix(implicit doc: SemanticDocument): Patch = {
-    try unsafeFix() catch {
-      case _: CompilerException =>
-        shutdownCompiler()
-        global.restart()
-        try unsafeFix() catch {
-          case _: CompilerException => Patch.empty /* ignore compiler crashes */
+    try unsafeFix()
+    catch {
+      case e1: CompilerException =>
+        try unsafeFix()
+        catch {
+          case e2: CompilerException =>
+            println((e1, e2))
+            Patch.empty /* ignore compiler crashes */
         }
     }
   }
 
   private def unsafeFix()(implicit doc: SemanticDocument) = {
-    lazy val power = new impl.Power(global.value)
     val handled = mutable.Set.empty[Name]
 
     def fix(tree: Tree, meth: Term, noTypeArgs: Boolean, noArgs: Boolean) = {
@@ -44,15 +40,15 @@ final class ExplicitNonNullaryApply(global: LazyValue[ScalafixGlobal])
         }
         if !tree.parent.exists(_.is[Term.Eta])
         info <- Workaround1104.symbol(name).info
-        if !power.isJavaDefined(name) // !info.isJava
         if cond(info.signature) {
           case MethodSignature(_, List(Nil, _*), _) => true
-          case ClassSignature(_, _, _, decls) if tree.isInstanceOf[Term.ApplyType] =>
+          case ClassSignature(_, _, _, decls)
+              if tree.isInstanceOf[Term.ApplyType] =>
             decls.exists { decl =>
               decl.displayName == "apply" &&
-                cond(decl.signature) {
-                  case MethodSignature(_, List(Nil, _*), _) => true
-                }
+              cond(decl.signature) {
+                case MethodSignature(_, List(Nil, _*), _) => true
+              }
             }
         }
       } yield {
@@ -82,8 +78,9 @@ final class ExplicitNonNullaryApply(global: LazyValue[ScalafixGlobal])
     }.asPatch
 
     doc.tree.collect {
-      case t @ q"$meth[..$targs](...$args)" => fix(t, meth, targs.isEmpty, args.isEmpty)
-      case t @ q"$meth(...$args)"           => fix(t, meth, true,          args.isEmpty)
+      case t @ q"$meth[..$targs](...$args)" =>
+        fix(t, meth, targs.isEmpty, args.isEmpty)
+      case t @ q"$meth(...$args)" => fix(t, meth, true, args.isEmpty)
     }.asPatch
   }
 
@@ -94,10 +91,6 @@ final class ExplicitNonNullaryApply(global: LazyValue[ScalafixGlobal])
   }
 
   override def withConfiguration(config: Configuration) =
-    Configured.ok(new ExplicitNonNullaryApply(LazyValue.later { () =>
-      ScalafixGlobal.newCompiler(config.scalacClasspath, config.scalacOptions, Map.empty)
-    }))
+    Configured.ok(new ExplicitNonNullaryApply())
 
-  override def afterComplete() = shutdownCompiler()
-  def shutdownCompiler() = for (g <- global) nonFatalCatch { g.askShutdown(); g.close() }
 }
