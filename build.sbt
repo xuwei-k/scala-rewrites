@@ -1,12 +1,16 @@
 import _root_.scalafix.sbt.BuildInfo.{ scala212, scalafixVersion }
 
+val semanticdbV = "4.3.17"
+val scala213 = "2.13.2"
+
 inThisBuild(List(
-  libraryDependencies += "org.scalameta" %% "semanticdb-scalac-core" % "4.3.17" cross CrossVersion.full,
+  crossScalaVersions := List(scala213, "2.12.11"),
+  libraryDependencies += "org.scalameta" %% "semanticdb-scalac-core" % semanticdbV cross CrossVersion.full,
   organization := "org.scala-lang",
   licenses := List("Apache-2.0" -> url("https://www.apache.org/licenses/LICENSE-2.0")),
   developers := List(Developer("", "", "", url("https://github.com/scala/scala-rewrites/graphs/contributors"))),
   homepage := Some(url("https://github.com/scala/scala-rewrites")),
-  scalaVersion := scala212,
+  scalaVersion := scala213,
 ))
 
 skip in publish := true
@@ -17,7 +21,7 @@ val rewrites = project.settings(
 )
 
 val input = project.settings(
-  addCompilerPlugin(scalafixSemanticdb),
+  addCompilerPlugin("org.scalameta" %% "semanticdb-scalac" % semanticdbV cross CrossVersion.full),
   scalacOptions ++= List("-Yrangepos", "-P:semanticdb:synthetics:on"),
   skip in publish := true,
 )
